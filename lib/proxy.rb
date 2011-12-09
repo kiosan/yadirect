@@ -1,9 +1,3 @@
-require 'curb'
-require 'json'
-require 'hashit'
-require 'api_error'
-require 'hash'
-require 'string'
 
 module Yadirect
   class Proxy
@@ -16,14 +10,23 @@ module Yadirect
       @debug = false || params[:debug]
     end
 
-    def invoke method, args = {}
-      json_object = {:method => method, :locale => @locale, :param => args}.to_json
+    def invoke method, args
+
+      puts args.inspect
+
+      args = case args
+        when Hash then args.camelize_keys
+        when Array then args.camelize_each
+        else args
+      end
+      json_object = JSON.generate({:method => method, :locale => @locale, :param => args})
       puts "yadirect input: #{json_object}" if @debug
       c = Curl::Easy.http_post(EP_YANDEX_DIRECT_V4, json_object) do |curl|
         curl.cacert = @params[:cacert]
         curl.certtype = "PEM"
         curl.cert_key = @params[:cert_key]
         curl.cert = @params[:cert]
+        curl.encoding = Encoding::UTF_8.name
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
         curl.headers['Api-Version'] = '2.2'
@@ -35,8 +38,7 @@ module Yadirect
       if (hash.include?("error_code"))
         raise Yadirect::ApiError, hash
       else
-        object_result = Hashit.new(hash)
-        object_result.data
+        hash["data"]
       end
     end
 
