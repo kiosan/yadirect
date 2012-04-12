@@ -12,8 +12,6 @@ module Yadirect
 
     def invoke method, args
 
-      puts args.inspect
-
       args = case args
         when Hash then args.camelize_keys
         when Array then args.camelize_each
