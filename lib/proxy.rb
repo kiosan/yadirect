@@ -7,9 +7,7 @@ module Yadirect
       @params = params
       @locale = 'RU' || params[:locale]
       @debug = false || params[:debug]
-      @login = params[:login]
-      @app_id = params[:application_id]
-      @token = params[:token]
+
     end
 
     def invoke method, args
@@ -19,13 +17,13 @@ module Yadirect
         when Array then args.camelize_each
         else args
       end
-      json_object = JSON.generate({:method => method, :login => @login, :application_id => @app_id, :token=>@token, :locale => @locale, :param => args})
+      json_object = JSON.generate({:method => method,  :locale => @locale, :param => args})
       puts "yadirect input: #{json_object}" if @debug
       c = Curl::Easy.http_post(EP_YANDEX_DIRECT_V4, json_object) do |curl|
-        #curl.cacert = @params[:cacert]
-        #curl.certtype = "PEM"
-        #curl.cert_key = @params[:cert_key]
-        #curl.cert = @params[:cert]
+        curl.cacert = @params[:cacert]
+        curl.certtype = "PEM"
+        curl.cert_key = @params[:cert_key]
+        curl.cert = @params[:cert]
         curl.encoding = Encoding::UTF_8.name
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
