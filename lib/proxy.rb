@@ -16,7 +16,7 @@ module Yadirect
         when Array then args.camelize_each
         else args
       end
-      json_object = JSON.generate({:method => method, :locale => @locale, :param => args})
+      json_object = JSON.generate({:method => method, :login => params[:login], :application_id => params[:application_id], :token=>params[:token], :locale => @locale, :param => args})
       puts "yadirect input: #{json_object}" if @debug
       c = Curl::Easy.http_post(EP_YANDEX_DIRECT_V4, json_object) do |curl|
         #curl.cacert = @params[:cacert]
